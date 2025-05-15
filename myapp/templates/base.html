@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}My Django App{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .navbar {
+            background: #0074d9;
+            color: #fff;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 18px;
+            font-weight: bold;
+        }
+        .navbar a:last-child {
+            margin-right: 0;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="navbar">
+        <div>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'market-data' %}">Market Data</a>
+        </div>
+        <div>
+            {% if user.is_authenticated %}
+                <span>Welcome, {{ user.username }}</span>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none;border:none;color:#fff;cursor:pointer;font-weight:bold;">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'signup' %}">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+    {% block content %}{% endblock %}
+</body>
+</html>

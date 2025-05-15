@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load market_extras %}
+{% block title %}Market Data{% endblock %}
+{% block extra_head %}
+<style>
+    .market-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 32px;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .market-container h1 {
+        margin-bottom: 24px;
+        color: #0074d9;
+        font-size: 2.2em;
+        letter-spacing: 1px;
+    }
+    .market-form {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .market-form input[type="text"],
+    .market-form input[type="date"] {
+        padding: 8px 12px;
+        border: 1px solid #d0d7de;
+        border-radius: 4px;
+        font-size: 1em;
+        background: #f8fafc;
+        transition: border 0.2s;
+    }
+    .market-form input[type="text"]:focus,
+    .market-form input[type="date"]:focus {
+        border: 1.5px solid #0074d9;
+        outline: none;
+    }
+    .market-form input[type="submit"] {
+        padding: 8px 20px;
+        background: #0074d9;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .market-form input[type="submit"]:hover {
+        background: #005fa3;
+    }
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: #f8fafc;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    th, td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+        font-size: 1em;
+    }
+    th {
+        background: #0074d9;
+        color: #fff;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+    tr:hover td {
+        background: #eaf6ff;
+        transition: background 0.2s;
+    }
+    .pagination {
+        margin: 24px 0 0 0;
+        text-align: center;
+    }
+    .pagination span, .pagination a {
+        margin: 0 4px;
+        padding: 7px 14px;
+        border: 1px solid #d0d7de;
+        background: #f8fafc;
+        text-decoration: none;
+        border-radius: 4px;
+        color: #0074d9;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+    }
+    .pagination .current {
+        background: #0074d9;
+        color: #fff;
+        border: 1px solid #0074d9;
+    }
+    .pagination a:hover {
+        background: #0074d9;
+        color: #fff;
+    }
+    @media (max-width: 800px) {
+        .market-container {
+            padding: 10px;
+        }
+        table, th, td {
+            font-size: 0.95em;
+        }
+        .market-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="market-container">
+    <h1>Market Data</h1>
+    <form method="get" class="market-form">
+        <input type="text" name="ticker" placeholder="Ticker" value="{{ request.GET.ticker }}">
+        <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+        <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+        <input type="submit" value="Filter">
+    </form>
+    {% if has_results %}
+    <table>
+        <tr>
+            {% for key in columns %}
+                <th>{{ key|capfirst }}</th>
+            {% endfor %}
+        </tr>
+        {% for record in page_obj.object_list %}
+        <tr>
+            {% for key in columns %}
+                <td>{{ record|get_item:key }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </div>
+    {% else %}
+        <p style="text-align:center; margin-top:40px;">No market data found for your query.</p>
+    {% endif %}
+</div>
+{% endblock %}
