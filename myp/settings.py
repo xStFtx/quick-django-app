@@ -146,6 +146,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/'
 
 # Security best practices for production
 SECURE_BROWSER_XSS_FILTER = True

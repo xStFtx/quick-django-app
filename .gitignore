@@ -35,3 +35,6 @@ Thumbs.db
 
 # Supabase config (if any)
 .supabase/
+
+# Ignore favicon in root if accidentally placed there
+/favicon.ico

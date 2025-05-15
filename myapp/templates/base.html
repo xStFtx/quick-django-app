@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+{% load static %}
 <head>
     <title>{% block title %}My Django App{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <style>
         body {
             font-family: Arial, sans-serif;
