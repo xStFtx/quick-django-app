@@ -17,8 +17,8 @@ A Django web application for viewing and filtering market data from Supabase, wi
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/your-repo.git
-   cd your-repo
+   git clone https://github.com/xStFtx/quick-django-app.git
+   cd quick-django-app
    ```
 
 2. **Create and activate a virtual environment:**
@@ -80,4 +80,4 @@ MIT
 
 ## Author
 
-[Your Name](https://github.com/yourusername)
+[xStFtx](https://github.com/xStFtx)

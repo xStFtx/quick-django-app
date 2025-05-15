@@ -1,5 +1,6 @@
 import os
-from django.http import HttpResponse
+import csv
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render, redirect
 from supabase import create_client, Client
 from django.core.paginator import Paginator
@@ -31,6 +32,10 @@ def market_data_view(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     page_number = request.GET.get('page', 1)
+    sort_by = request.GET.get('sort_by', 'date')
+    sort_dir = request.GET.get('sort_dir', 'desc')
+    export = request.GET.get('export')
+
     query = supabase.table('market_data').select("*")
     if ticker:
         query = query.eq('ticker', ticker)
@@ -39,7 +44,7 @@ def market_data_view(request):
     if end_date:
         query = query.lte('date', end_date)
     data = query.execute()
-    records = sorted(data.data, key=lambda x: x.get('date', ''), reverse=True)
+    records = data.data if data and data.data else []
 
     # Dynamically determine columns, excluding unwanted fields
     exclude_fields = {'id', 'created_at'}
@@ -50,12 +55,32 @@ def market_data_view(request):
         {k: v for k, v in record.items() if k in columns}
         for record in records
     ]
+
+    # Dynamic sorting
+    if sort_by in columns:
+        filtered_records.sort(
+            key=lambda x: x.get(sort_by) or "",
+            reverse=(sort_dir == 'desc')
+        )
+
+    # CSV export
+    if export == 'csv' and filtered_records:
+        def generate_csv():
+            yield ','.join(columns) + '\n'
+            for row in filtered_records:
+                yield ','.join(str(row.get(col, "")) for col in columns) + '\n'
+        response = StreamingHttpResponse(generate_csv(), content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="market_data.csv"'
+        return response
+
     paginator = Paginator(filtered_records, 20)
     page_obj = paginator.get_page(page_number)
     return render(request, 'market_data.html', {
         'page_obj': page_obj,
         'columns': columns,
         'has_results': bool(filtered_records),
+        'sort_by': sort_by,
+        'sort_dir': sort_dir,
     })
 
 @login_required

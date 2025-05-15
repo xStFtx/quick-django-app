@@ -118,6 +118,27 @@
             align-items: stretch;
         }
     }
+    .sort-link {
+        color: #fff;
+        text-decoration: underline dotted;
+        font-size: 0.9em;
+        margin-left: 4px;
+    }
+    .export-btn {
+        float: right;
+        margin-bottom: 10px;
+        padding: 7px 16px;
+        background: #0074d9;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .export-btn:hover {
+        background: #005fa3;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -128,12 +149,26 @@
         <input type="date" name="start_date" value="{{ request.GET.start_date }}">
         <input type="date" name="end_date" value="{{ request.GET.end_date }}">
         <input type="submit" value="Filter">
+        <button class="export-btn" name="export" value="csv" type="submit">Export CSV</button>
     </form>
     {% if has_results %}
     <table>
         <tr>
             {% for key in columns %}
-                <th>{{ key|capfirst }}</th>
+                <th>
+                    {{ key|capfirst }}
+                    <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}
+                        {% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}
+                        {% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}
+                        sort_by={{ key }}&sort_dir={% if sort_by == key and sort_dir == 'asc' %}desc{% else %}asc{% endif %}"
+                        class="sort-link">
+                        {% if sort_by == key %}
+                            {% if sort_dir == 'asc' %}▲{% else %}▼{% endif %}
+                        {% else %}
+                            ⇅
+                        {% endif %}
+                    </a>
+                </th>
             {% endfor %}
         </tr>
         {% for record in page_obj.object_list %}
@@ -146,11 +181,11 @@
     </table>
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}sort_by={{ sort_by }}&sort_dir={{ sort_dir }}&page={{ page_obj.previous_page_number }}">Previous</a>
         {% endif %}
         <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            <a href="?{% if request.GET.ticker %}ticker={{ request.GET.ticker }}&{% endif %}{% if request.GET.start_date %}start_date={{ request.GET.start_date }}&{% endif %}{% if request.GET.end_date %}end_date={{ request.GET.end_date }}&{% endif %}sort_by={{ sort_by }}&sort_dir={{ sort_dir }}&page={{ page_obj.next_page_number }}">Next</a>
         {% endif %}
     </div>
     {% else %}
